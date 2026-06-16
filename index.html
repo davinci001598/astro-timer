@@ -3,57 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>日星择时</title>
+<title>七政择时</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#080816;color:#ccc;min-height:100vh}
-.header{text-align:center;padding:20px 16px 4px}
-.header h1{font-size:22px;color:#e8d5a0;letter-spacing:3px}
-.header .sub{font-size:11px;color:#665;margin-top:4px}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#080816;color:#c0b8a8;min-height:100vh;padding-bottom:40px}
 
-.form{padding:12px 16px;max-width:420px;margin:0 auto}
-.frow{display:flex;gap:8px;margin-bottom:10px}
-.frow>div{flex:1}
-.frow label{display:block;font-size:11px;color:#887;margin-bottom:2px}
-.frow input,.frow select{width:100%;padding:9px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#ccc;font-size:14px;font-family:inherit}
-.frow input:focus,.frow select:focus{outline:none;border-color:rgba(232,213,160,0.4)}
-.frow select option{background:#1a1a2e;color:#ccc}
-.btn{width:100%;padding:11px;border-radius:8px;border:none;background:linear-gradient(135deg,#c9a84e,#a08030);color:#0a0a16;font-size:15px;font-weight:600;letter-spacing:2px;cursor:pointer}
+.header{text-align:center;padding:24px 16px 6px}
+.header h1{font-size:22px;color:#d4c098;letter-spacing:3px}
+.header .sub{font-size:11px;color:#665;margin-top:4px;letter-spacing:1px}
 
-.chart-wrap{display:none;max-width:420px;margin:8px auto;position:relative}
-.chart-wrap canvas{width:100%;display:block}
-.chart-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
-.chart-label .starname{font-size:13px;color:#e8d5a0;font-weight:600}
+.form{max-width:420px;margin:0 auto;padding:16px}
+.frow{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.frow>div{flex:1;min-width:100px}
+.frow label{display:block;font-size:12px;color:#887;margin-bottom:4px}
+.frow input,.frow select{width:100%;padding:10px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:#c0b8a8;font-size:14px;font-family:inherit}
+.frow input:focus,.frow select:focus{outline:none;border-color:rgba(212,192,152,0.3)}
+.frow select option{background:#1a1a28;color:#c0b8a8}
+.btn{width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(135deg,#b89848,#8a6828);color:#0a0a14;font-size:15px;font-weight:600;letter-spacing:2px;cursor:pointer;margin-top:4px}
+.btn:active{opacity:0.85}
 
-.result{display:none;max-width:420px;margin:0 auto;padding:0 16px 20px}
-.best{background:linear-gradient(135deg,rgba(232,213,160,0.12),rgba(232,213,160,0.02));border:1px solid rgba(232,213,160,0.2);border-radius:10px;padding:14px;text-align:center;margin-bottom:12px}
-.best .rank{font-size:11px;color:#bba870;letter-spacing:2px}
-.best .time{font-size:26px;color:#e8d5a0;font-weight:700;letter-spacing:2px}
-.best .desc{font-size:12px;color:#bba870;margin-top:4px;line-height:1.6}
+.result{display:none;max-width:420px;margin:0 auto;padding:0 16px 24px}
 
-.starlist{background:rgba(255,255,255,0.025);border-radius:10px;padding:12px;margin-top:8px}
-.starlist .srow{display:flex;align-items:center;padding:4px 0;font-size:12px}
-.starlist .sdot{width:8px;height:8px;border-radius:50%;margin-right:8px;flex-shrink:0}
-.starlist .sname{width:50px;color:#aaa}
-.starlist .spos{color:#776;flex:1;text-align:right}
+.status{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;margin-bottom:12px}
+.status .row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:12px}
+.status .row .l{color:#887}
+.status .row .r{color:#d4c098;font-weight:600}
 
-hint{display:block;font-size:10px;color:#554;text-align:center;margin-top:16px;line-height:1.6}
-.footer{text-align:center;font-size:10px;color:#444;padding:16px}
+.best{background:linear-gradient(135deg,rgba(180,160,100,0.12),rgba(180,160,100,0.02));border:1px solid rgba(180,160,100,0.15);border-radius:10px;padding:16px;text-align:center;margin-bottom:12px}
+.best .rank{font-size:11px;color:#998;letter-spacing:2px;margin-bottom:4px}
+.best .time{font-size:28px;color:#d4c098;font-weight:700;letter-spacing:3px;margin:4px 0}
+.best .reason{font-size:13px;color:#bba870;line-height:1.8}
+
+.hour-list{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;overflow:hidden}
+.hour-list .hrow{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:12px}
+.hour-list .hrow:last-child{border-bottom:none}
+.hour-list .hrow.top{background:rgba(180,160,100,0.04)}
+.hour-list .hname{width:48px;font-size:16px;font-weight:700;color:#d4c098}
+.hour-list .hrange{width:48px;color:#887;font-size:11px}
+.hour-list .hinfo{flex:1;padding-left:8px}
+.hour-list .hinfo .hdesc{color:#998;font-size:11px;line-height:1.5}
+.hour-list .hscore{width:40px;text-align:right;font-size:14px;font-weight:700}
+.hour-list .hscore.gold{color:#d4c098}
+.hour-list .hscore.silver{color:#887}
+.hour-list .hscore.bronze{color:#665}
+
+.explain{background:rgba(255,255,255,0.015);border-radius:10px;padding:14px;margin-top:12px;font-size:11px;color:#665;line-height:1.8}
+.explain strong{color:#887;display:block;margin-bottom:4px}
+
+.footer{text-align:center;font-size:10px;color:#333;padding:16px;letter-spacing:1px}
 </style>
 </head>
 <body>
 
 <div class="header">
-<h1>日星择时</h1>
-<p class="sub">日月拱照 · 择时借力</p>
+<h1>七政择时</h1>
+<p class="sub">日月拱照 · 杨公造命法</p>
 </div>
 
-<div class="form" id="form">
+<div class="form">
 <div class="frow">
-<div><label>日期</label><input type="date" id="date"></div>
-</div>
-<div class="frow">
-<div><label>事项</label><select id="event">
+<div><label>日期</label><input type="date" id="dateInput"></div>
+<div><label>事项</label><select id="eventSelect">
 <option value="network">拓展人脉</option>
 <option value="deal">签约合作</option>
 <option value="career">面试述职</option>
@@ -63,186 +73,208 @@ hint{display:block;font-size:10px;color:#554;text-align:center;margin-top:16px;l
 <option value="study">学习创作</option>
 </select></div>
 </div>
-<button class="btn" onclick="calc()">查看星象 · 择时</button>
+<button class="btn" id="calcBtn">择时</button>
 </div>
 
-<div class="chart-wrap" id="chartWrap"><canvas id="chart"></canvas></div>
-<div class="result" id="result">
-<div class="best" id="bestCard"></div>
-<div class="starlist" id="starList"></div>
-</div>
+<div class="result" id="result"></div>
 
-<div class="footer">日星择时 · 杨公造命法</div>
+<div class="footer">七政择时 · 参考框架</div>
 
 <script>
-const palaces=["戌","酉","申","未","午","巳","辰","卯","寅","丑","子","亥"];
-const branches=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-const pnames={戌:"白羊",酉:"金牛",申:"双子",未:"巨蟹",午:"狮子",巳:"处女",辰:"天秤",卯:"天蝎",寅:"射手",丑:"摩羯",子:"水瓶",亥:"双鱼"};
-const hoursData=[
+var BRANCHES = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+var PALACES = ["戌","酉","申","未","午","巳","辰","卯","寅","丑","子","亥"];
+var PNAMES = {戌:"白羊",酉:"金牛",申:"双子",未:"巨蟹",午:"狮子",巳:"处女",辰:"天秤",卯:"天蝎",寅:"射手",丑:"摩羯",子:"水瓶",亥:"双鱼"};
+
+var HOURS = [
   {name:"卯",range:"5-7",idx:3},{name:"辰",range:"7-9",idx:4},
   {name:"巳",range:"9-11",idx:5},{name:"午",range:"11-13",idx:6},
   {name:"未",range:"13-15",idx:7},{name:"申",range:"15-17",idx:8},
   {name:"酉",range:"17-19",idx:9},{name:"戌",range:"19-21",idx:10},
   {name:"亥",range:"21-23",idx:11}
 ];
-const eventMap={
-  network:{main:"迁移",bonus:"福德",label:"社交人脉",tip:"太阳拱照迁移宫 · 社交磁场最强"},
-  deal:{main:"财帛",bonus:"官禄",label:"签约合作",tip:"太阳拱照财帛宫 · 价值感在线"},
-  career:{main:"官禄",bonus:"迁移",label:"事业争取",tip:"太阳拱照官禄宫 · 权威感最强"},
-  launch:{main:"官禄",bonus:"财帛",label:"启动新事",tip:"太阳拱照官禄宫 · 开局气势在线"},
-  love:{main:"夫妻",bonus:"福德",label:"感情增进",tip:"太阳拱照夫妻宫 · 亲和力拉满"},
-  travel:{main:"迁移",bonus:"官禄",label:"出行远行",tip:"太阳拱照迁移宫 · 一路顺畅"},
+
+var EVENT_MAP = {
+  network:{main:"迁移",bonus:"福德",label:"拓展人脉",tip:"太阳拱照迁移宫 · 社交磁场最强"},
+  deal:{main:"财帛",bonus:"官禄",label:"签约合作",tip:"日入财帛宫 · 价值感在线"},
+  career:{main:"官禄",bonus:"迁移",label:"面试述职",tip:"日入官禄宫 · 权威感最强"},
+  launch:{main:"官禄",bonus:"财帛",label:"项目启动",tip:"日入官禄宫 · 开局气势在线"},
+  love:{main:"夫妻",bonus:"福德",label:"约会感情",tip:"太阳拱照夫妻宫 · 亲和力拉满"},
+  travel:{main:"迁移",bonus:"官禄",label:"出行远行",tip:"日入迁移宫 · 一路顺畅"},
   study:{main:"福德",bonus:"迁移",label:"学习创作",tip:"太阳拱照福德宫 · 灵感专注度最高"}
 };
 
-// 太阳黄经
-function getSolarPos(dateStr){
-  const d=new Date(dateStr+"T12:00:00+08:00");
-  const y=d.getFullYear();
-  let vernal=new Date(y,2,20,18,0,0);
-  let diff=(d-vernal)/86400000;
-  if(diff<0){vernal=new Date(y-1,2,20,18,0,0);diff=(d-vernal)/86400000}
-  const deg=(diff*0.9856)%360;
-  return {palace:palaces[Math.floor(deg/30)],deg:deg%30,totalDeg:deg};
+var PALACE_OFFSET = {迁移:7,财帛:5,官禄:4,夫妻:2,福德:3};
+
+// 太阳黄经 (春分点为0° 简化)
+function getSolar(dateStr){
+  var d = new Date(dateStr+"T12:00:00+08:00");
+  var y = d.getFullYear();
+  var vernal = new Date(y,2,20,18,0,0);
+  var diff = (d - vernal)/86400000;
+  if(diff<0){ vernal=new Date(y-1,2,20,18,0,0); diff=(d-vernal)/86400000; }
+  var deg = (diff*0.9856)%360;
+  return {palace: PALACES[Math.floor(deg/30)], deg:deg%30, total:deg};
 }
 
-// 木星近似 (周期11.86年，简化)
-function getJupiterPos(dateStr){
-  const d=new Date(dateStr+"T12:00:00+08:00");
-  const y=d.getFullYear();
-  const doy=(d-new Date(y,0,1))/86400000;
-  // 2020.0 木星约在丑宫(摩羯)270°
-  const yrFrac=y+doy/365.25-2020;
-  const deg=(270+yrFrac*30.34)%360;
-  return {palace:palaces[Math.floor(deg/30)],deg:deg%30,totalDeg:deg};
+// 木星黄经 (周期11.86年 简化)
+function getJupiter(dateStr){
+  var d = new Date(dateStr+"T12:00:00+08:00");
+  var y = d.getFullYear();
+  var doy = (d-new Date(y,0,1))/86400000;
+  var yrFrac = y + doy/365.25 - 2020;
+  var deg = ((270 + yrFrac*30.34)%360+360)%360;
+  return {palace: PALACES[Math.floor(deg/30)], deg:deg%30, total:deg};
 }
 
-function calcMing(solarPalace,hourBranch){
-  const si=branches.indexOf(solarPalace),hi=branches.indexOf(hourBranch);
-  let cur=si,placed=hi;
-  for(let c=0;c<12;c++){
-    if(placed===branches.indexOf("卯"))return branches[cur];
-    placed=(placed+1)%12;cur=(cur+1)%12;
+// 月亮黄经 (近似：每日13.18°，基于2026.6.15月亮在申宫约120°)
+function getMoon(dateStr){
+  var d = new Date(dateStr+"T12:00:00+08:00");
+  var ref = new Date("2026-06-15T12:00:00+08:00");
+  var diff = (d - ref)/86400000;
+  var deg = ((140 + diff*13.176)%360+360)%360;
+  return {palace: PALACES[Math.floor(deg/30)], deg:deg%30, total:deg};
+}
+
+// 安命宫法则：太阳宫→十二宫起点，按时辰地支定命宫
+function calcMing(solarPalace, hourBranch){
+  var si = PALACES.indexOf(solarPalace);
+  var hi = BRANCHES.indexOf(hourBranch);
+  for(var c=0;c<12;c++){
+    var placed = (hi + c)%12;
+    if(placed === BRANCHES.indexOf("卯")){
+      return PALACES[(si + c)%12];
+    }
   }
-  return branches[si];
-}
-function targetP(ming,off){
-  return branches[(branches.indexOf(ming)+off)%12];
-}
-function dist(p1,p2){
-  const d=Math.abs(branches.indexOf(p1)-branches.indexOf(p2));
-  return Math.min(d,12-d);
+  return solarPalace;
 }
 
-// 画星盘
-function drawChart(solar,jupiter){
-  const canvas=document.getElementById("chart");
-  const w=canvas.parentElement.clientWidth;
-  const s=Math.min(w,400);
-  canvas.width=s*2;canvas.height=s*2;
-  const ctx=canvas.getContext("2d");
-  const cx=s,cy=s;
-  const outerR=s*0.85,innerR=s*0.55,midR=(outerR+innerR)/2;
+// 从命宫找目标宫 (逆时针offset)
+function targetPalace(ming, offset){
+  return PALACES[(PALACES.indexOf(ming) + offset)%12];
+}
 
-  ctx.clearRect(0,0,s*2,s*2);
-
-  // 12宫
-  for(let i=0;i<12;i++){
-    const a0=-Math.PI/2+i*Math.PI/6,a1=a0+Math.PI/6;
-    ctx.beginPath();ctx.arc(cx,cy,outerR,a0,a1);
-    ctx.arc(cx,cy,innerR,a1,a0,true);ctx.closePath();
-    ctx.fillStyle="rgba(255,255,255,0.015)";
-    ctx.fill();
-    ctx.strokeStyle="rgba(255,255,255,0.06)";
-    ctx.lineWidth=1;ctx.stroke();
-
-    const am=a0+Math.PI/12;
-    const tx=cx+midR*Math.cos(am),ty=cy+midR*Math.sin(am);
-    ctx.fillStyle="#665";ctx.font=`bold ${s*0.04}px "PingFang SC","Microsoft YaHei"`;
-    ctx.textAlign="center";ctx.textBaseline="middle";
-    ctx.fillText(palaces[i],tx,ty-10);
-    ctx.fillStyle="#443";ctx.font=`${s*0.028}px "PingFang SC","Microsoft YaHei"`;
-    ctx.fillText(pnames[palaces[i]],tx,ty+10);
-  }
-
-  // 绘制星体
-  function drawStar(deg,totalDeg,color,r,label,lcolor){
-    // deg: 在当前宫的角度, totalDeg: 总黄经
-    const a=-Math.PI/2+(totalDeg*Math.PI/180);
-    const d=innerR*0.65;
-    const sx=cx+Math.cos(a)*d,sy=cy+Math.sin(a)*d;
-
-    // 光晕
-    const glow=ctx.createRadialGradient(sx,sy,0,sx,sy,r*3);
-    glow.addColorStop(0,color+"33");glow.addColorStop(1,"transparent");
-    ctx.fillStyle=glow;ctx.beginPath();ctx.arc(sx,sy,r*3,0,Math.PI*2);ctx.fill();
-
-    // 星体
-    ctx.fillStyle=color;ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle=lcolor||"#fff";ctx.font=`bold ${s*0.03}px "PingFang SC"`;
-    ctx.textAlign="center";ctx.fillText(label,sx,sy-14);
-  }
-
-  drawStar(solar.deg,solar.totalDeg,"#fa0",s*0.04,"☉日","#fa0");
-  drawStar(jupiter.deg,jupiter.totalDeg,"#6af",s*0.035,"♃木","#8cf");
-
-  // 中心
-  ctx.fillStyle="rgba(232,213,160,0.12)";
-  ctx.beginPath();ctx.arc(cx,cy,s*0.08,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle="#554";ctx.font=`${s*0.026}px "PingFang SC"`;
-  ctx.textAlign="center";ctx.fillText("日星",cx,cy+2);
-
-  document.getElementById("chartWrap").style.display="block";
+// 十二支距离 (0=同宫,4=三合120°,2=六合60°,6=冲180°,3/1=刑90°/30°)
+function distArc(a,b){
+  var d = Math.abs(PALACES.indexOf(a) - PALACES.indexOf(b));
+  return Math.min(d, 12-d);
 }
 
 function calc(){
-  const date=document.getElementById("date").value;
-  const eventKey=document.getElementById("event").value;
-  if(!date)return;
+  var dateStr = document.getElementById("dateInput").value;
+  var eventKey = document.getElementById("eventSelect").value;
+  if(!dateStr) return;
 
-  const solar=getSolarPos(date);
-  const jupiter=getJupiterPos(date);
-  const evt=eventMap[eventKey];
-  const mo={迁移:7,财帛:5,官禄:4,夫妻:2,福德:3};
-  const mainOff=mo[evt.main],bonusOff=mo[evt.bonus];
+  var solar = getSolar(dateStr);
+  var jupiter = getJupiter(dateStr);
+  var moon = getMoon(dateStr);
+  var evt = EVENT_MAP[eventKey];
+  var mainOff = PALACE_OFFSET[evt.main];
+  var bonusOff = PALACE_OFFSET[evt.bonus];
 
-  // 画星盘
-  drawChart(solar,jupiter);
+  var results = [];
+  for(var h=0;h<HOURS.length;h++){
+    var hour = HOURS[h];
+    var ming = calcMing(solar.palace, hour.name);
+    var tp = targetPalace(ming, mainOff);
+    var bp = targetPalace(ming, bonusOff);
 
-  // 计算各时辰
-  let results=hoursData.map(h=>{
-    const ming=calcMing(solar.palace,branches[h.idx]);
-    const tp=targetP(ming,mainOff),bp=targetP(ming,bonusOff);
-    const dMain=dist(solar.palace,tp),dBonus=dist(solar.palace,bp);
-    let score=0,descs=[];
-    if(dMain===0){score+=100;descs.push("日入"+evt.main+"宫");}
-    else if(dMain===4){score+=70;descs.push("日拱"+evt.main+"宫120°");}
-    else if(dMain===2){score+=35;descs.push("日合"+evt.main+"宫60°");}
-    if(dBonus===0){score+=60;descs.push("日入"+evt.bonus+"宫");}
-    else if(dBonus===4){score+=35;descs.push("日拱"+evt.bonus+"宫120°");}
-    return {hour:h,ming,tp,bp,dMain,dBonus,score,descs};
-  });
-  results.sort((a,b)=>b.score-a.score);
-  const best=results[0];
+    // 太阳对目标宫
+    var dSunMain = distArc(solar.palace, tp);
+    var dSunBonus = distArc(solar.palace, bp);
+    // 木星对目标宫
+    var dJupMain = distArc(jupiter.palace, tp);
+    var dJupBonus = distArc(jupiter.palace, bp);
+    // 月亮对目标宫
+    var dMoonMain = distArc(moon.palace, tp);
+    var dMoonBonus = distArc(moon.palace, bp);
 
-  document.getElementById("bestCard").innerHTML=`
-    <div class="rank">⭐ 最佳时辰</div>
-    <div class="time">${best.hour.name}时 ${best.hour.range}点</div>
-    <div class="desc">${evt.tip}<br><span style="font-size:10px;color:#665">日${solar.palace}宫${solar.deg.toFixed(1)}°·木${jupiter.palace}宫${jupiter.deg.toFixed(1)}°·命${best.ming}·${evt.main}${best.tp}</span></div>
-  `;
+    var score = 0;
+    var descs = [];
 
-  document.getElementById("starList").innerHTML=`
-    <div class="srow"><span class="sdot" style="background:#fa0"></span><span class="sname">太阳</span><span style="color:#e8d5a0;flex:1;text-align:right">${solar.palace}宫 ${pnames[solar.palace]} ${solar.deg.toFixed(1)}°</span></div>
-    <div class="srow"><span class="sdot" style="background:#6af"></span><span class="sname">木星</span><span style="color:#8bf;flex:1;text-align:right">${jupiter.palace}宫 ${pnames[jupiter.palace]} ${jupiter.deg.toFixed(1)}°</span></div>
-    <div class="srow"><span class="sdot" style="background:transparent;border:1px solid #554"></span><span class="sname">各时辰</span><span style="color:#776;flex:1;text-align:right">${results.map((r,i)=>`<span style="color:${i===0?'#e8d5a0':i<3?'#887':'#665'}">${r.hour.name}${r.hour.range} ${r.descs[0]||''}</span><br>`).join('').slice(0,-4)}</span></div>
-  `;
+    // 太阳打分
+    if(dSunMain === 0){ score += 100; descs.push("太阳入"+evt.main+"宫"); }
+    else if(dSunMain === 4){ score += 70; descs.push("太阳拱"+evt.main+"宫"); }
+    else if(dSunMain === 2){ score += 35; descs.push("太阳合"+evt.main+"宫"); }
+    if(dSunBonus === 0){ score += 60; descs.push("太阳入"+evt.bonus+"宫"); }
+    else if(dSunBonus === 4){ score += 35; descs.push("太阳拱"+evt.bonus+"宫"); }
 
-  document.getElementById("result").style.display="block";
+    // 木星打分
+    if(dJupMain === 0){ score += 80; descs.push("木星入"+evt.main+"宫"); }
+    else if(dJupMain === 4){ score += 50; descs.push("木星拱"+evt.main+"宫"); }
+    if(dJupBonus === 0){ score += 50; descs.push("木星入"+evt.bonus+"宫"); }
+    else if(dJupBonus === 4){ score += 30; descs.push("木星拱"+evt.bonus+"宫"); }
+
+    // 月亮加分
+    if(dMoonMain === 0){ score += 50; descs.push("月亮入"+evt.main+"宫"); }
+    else if(dMoonMain === 4){ score += 30; descs.push("月亮拱"+evt.main+"宫"); }
+
+    // 凶星火星土星检查 (简化：火星约在申宫58°，土星约在子宫330°)
+    var marsPalace = PALACES[Math.floor(58/30)];
+    var saturnPalace = PALACES[Math.floor(330/30)];
+    var dMarsMain = distArc(marsPalace, tp);
+    var dSaturnMain = distArc(saturnPalace, tp);
+    if(dMarsMain <= 1 || dMarsMain === 6) score -= 30;
+    if(dSaturnMain <= 1 || dSaturnMain === 6) score -= 20;
+
+    results.push({
+      hour: hour,
+      ming: ming,
+      score: score,
+      descs: descs,
+      solar: solar, jupiter: jupiter, moon: moon
+    });
+  }
+
+  results.sort(function(a,b){ return b.score - a.score; });
+  var best = results[0];
+  var evt = EVENT_MAP[eventKey];
+
+  // 渲染
+  var html = '';
+
+  // 星体位置
+  html += '<div class="status">';
+  html += '<div class="row"><span class="l">太阳</span><span class="r">'+solar.palace+'宫 '+PNAMES[solar.palace]+' '+solar.deg.toFixed(1)+'°</span></div>';
+  html += '<div class="row"><span class="l">木星</span><span class="r">'+jupiter.palace+'宫 '+PNAMES[jupiter.palace]+' '+jupiter.deg.toFixed(1)+'°</span></div>';
+  html += '<div class="row"><span class="l">月亮</span><span class="r">'+moon.palace+'宫 '+PNAMES[moon.palace]+' '+moon.deg.toFixed(1)+'°</span></div>';
+  html += '</div>';
+
+  // 最佳
+  var bestDescs = best.descs.length>0 ? best.descs.join(' · ') : '无特殊拱照';
+  html += '<div class="best">';
+  html += '<div class="rank">最佳时辰</div>';
+  html += '<div class="time">'+best.hour.name+'时 '+best.hour.range+'点</div>';
+  html += '<div class="reason">命宫'+best.ming+' · '+evt.main+'宫('+evt.main+')<br>'+bestDescs+'</div>';
+  html += '</div>';
+
+  // 时辰排行
+  html += '<div class="hour-list">';
+  for(var i=0;i<results.length;i++){
+    var r = results[i];
+    var cls = i===0?"top":"";
+    var scoreCls = i===0?"gold":(i===1?"silver":"bronze");
+    var descText = r.descs.length>0 ? r.descs.join(' · ') : '—';
+    if(r.descs.length === 0) descText = '无拱照 · 可照常';
+    html += '<div class="hrow '+cls+'">';
+    html += '<span class="hname">'+r.hour.name+'</span>';
+    html += '<span class="hrange">'+r.hour.range+'点</span>';
+    html += '<span class="hinfo"><span class="hdesc">命'+r.ming+' · '+descText+'</span></span>';
+    html += '<span class="hscore '+scoreCls+'">'+r.score+'</span>';
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // 说明
+  html += '<div class="explain"><strong>算法说明</strong>太阳黄经≈春分起算逐日+0.9856° · 木星≈自2020.0丑宫起每年+30.34° · 月亮≈每日+13.18°。安命宫以太阳宫为起点、卯时起命宫逆排。评分：太阳入宫100分/拱70分/合35分，木星入宫80分/拱50分，月亮入宫50分。火星冲刑扣30分，土星冲刑扣20分。</div>';
+
+  document.getElementById("result").innerHTML = html;
+  document.getElementById("result").style.display = "block";
   document.getElementById("result").scrollIntoView({behavior:"smooth"});
 }
 
-document.addEventListener("DOMContentLoaded",()=>{
-  document.getElementById("date").value=new Date().toISOString().slice(0,10);
+document.getElementById("calcBtn").addEventListener("click", calc);
+document.addEventListener("DOMContentLoaded", function(){
+  document.getElementById("dateInput").value = new Date().toISOString().slice(0,10);
 });
 </script>
 </body>
