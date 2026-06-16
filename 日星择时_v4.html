@@ -46,6 +46,10 @@ h1{text-align:center;font-size:22px;font-weight:300;letter-spacing:3px;color:#c8
 .time-card.avoided .right .sc{color:#664}
 .time-card.avoided .left .t{color:#665}
 
+.time-card.bad{border-color:#331a1a;background:#170f0f}
+.time-card.bad .right .sc{color:#a55}
+.time-card.bad .left .t{color:#a88}
+
 .avoid-split{text-align:center;font-size:10px;color:#442;padding:6px 0;letter-spacing:2px}
 
 .star-info{background:#111122;border:1px solid #222;border-radius:12px;padding:14px;margin-top:12px}
@@ -187,8 +191,8 @@ function calc(ds,ek){
     if(evt.gx.includes(j_x.n)){sc+=25;ds.push("木居"+j_x.n+"宿利"+evt.lb);}
     
     // malefic check
-    if(da(mp,tpp)<=1||da(mp,tpp)===6)sc-=30;
-    if(da(sp_,tpp)<=1||da(sp_,tpp)===6)sc-=20;
+    if(da(mp,tpp)<=1||da(mp,tpp)===6){sc-=30;ds.push("⚠火星犯"+(evt.m||"")+"宫");}
+    if(da(sp_,tpp)<=1||da(sp_,tpp)===6){sc-=20;ds.push("⚠土星犯"+(evt.m||"")+"宫");}
     
     rs.push({n:hr.n,r:hr.r,mg:mg,sc:sc,ds:ds});
   }
@@ -222,7 +226,11 @@ function render(r){
     let cls="time-card";
     if(isTop) cls+=" top";
     if(avoided.has(x.n)) cls+=" avoided";
-    let tag=avoided.has(x.n)?" <span style='font-size:10px;color:#a44'>已避开</span>":"";
+    if(!avoided.has(x.n) && x.sc<50) cls+=" bad";
+    let tag="";
+    if(avoided.has(x.n)) tag=" <span style='font-size:10px;color:#a44'>已避开</span>";
+    else if(x.sc<50) tag=" <span style='font-size:10px;color:#c55'>不宜</span>";
+    else if(isTop) tag=" <span style='font-size:10px;color:#c8b878'>最佳</span>";
     return `<div class="${cls}">
       <div class="left">
         <div class="t">${x.n}时 ${x.r}时${tag}</div>
