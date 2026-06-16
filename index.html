@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>天文时间规划</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#0a0a16;color:#ccc;line-height:1.8;min-height:100vh}
+
+.header{text-align:center;padding:24px 16px 8px}
+.header h1{font-size:22px;color:#e8d5a0;letter-spacing:3px;margin-bottom:4px}
+.header p{font-size:12px;color:#665}
+
+.form{padding:12px 16px;max-width:420px;margin:0 auto}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-size:12px;color:#887;margin-bottom:4px;padding-left:2px}
+.fld input,.fld select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#ccc;font-size:15px;font-family:inherit}
+.fld input:focus,.fld select:focus{outline:none;border-color:rgba(232,213,160,0.4)}
+.fld input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.7)}
+.fld select option{background:#1a1a2e;color:#ccc}
+
+.btn{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#c9a84e,#a08030);color:#0a0a16;font-size:16px;font-weight:600;letter-spacing:2px;cursor:pointer;margin-top:4px}
+.btn:active{opacity:0.85}
+
+/* 结果区 */
+.result{display:none;padding:0 16px 24px;max-width:420px;margin:0 auto}
+
+.best-card{background:linear-gradient(135deg,rgba(232,213,160,0.12),rgba(232,213,160,0.02));border:1px solid rgba(232,213,160,0.25);border-radius:12px;padding:18px;text-align:center;margin-bottom:16px}
+.best-card .rank{font-size:11px;color:#bba870;letter-spacing:3px}
+.best-card .time{font-size:30px;color:#e8d5a0;font-weight:700;letter-spacing:3px;margin:4px 0}
+.best-card .desc{font-size:13px;color:#bba870;line-height:1.6}
+.best-card .tag-row{display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.best-card .tag{background:rgba(232,213,160,0.15);color:#e8d5a0;padding:3px 10px;border-radius:14px;font-size:11px}
+
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+th{background:rgba(255,255,255,0.03);color:#887;font-weight:400;padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:11px}
+td{padding:7px 4px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.04);color:#999}
+td.a{color:#e8d5a0;font-weight:600}
+tr.best-row td{background:rgba(232,213,160,0.05)}
+
+.hint{font-size:11px;color:#665;text-align:center;margin-top:20px;line-height:1.6}
+
+.footer{text-align:center;font-size:10px;color:#444;padding:20px}
+
+@media(min-width:500px){
+  .form,.result{margin:0 auto;max-width:420px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>天文时间规划</h1>
+<p>基于太阳黄道位置 · 选最佳行动时辰</p>
+</div>
+
+<div class="form" id="form">
+<div class="fld">
+<label>日期</label>
+<input type="date" id="date" value="2026-06-16">
+</div>
+<div class="fld">
+<label>事项类型</label>
+<select id="event">
+<option value="network">拓展人脉 / 社交</option>
+<option value="deal">签约 / 合作 / 谈判</option>
+<option value="career">面试 / 述职 / 争取机会</option>
+<option value="launch">开业 / 项目启动</option>
+<option value="love">约会 / 相亲 / 增进感情</option>
+<option value="travel">出行 / 远行</option>
+<option value="study">学习 / 创作 / 考试</option>
+</select>
+</div>
+<div class="fld">
+<label>时间范围（可选）</label>
+<select id="range">
+<option value="all">全天</option>
+<option value="day">白天 (9-17点)</option>
+<option value="eve">晚间 (17-22点)</option>
+</select>
+</div>
+<button class="btn" onclick="calc()">查看最佳时辰</button>
+</div>
+
+<div class="result" id="result">
+<div class="best-card" id="best"></div>
+<table id="table"></table>
+<div class="hint">
+本工具仅基于太阳黄道位置与目标宫位的几何关系计算。<br>太阳为全天最强天体，其位置对行动时辰有显著指示意义。<br>不涉及命理、吉凶、超自然判定。
+</div>
+</div>
+
+<div class="footer">天文时间规划 · 理性参考工具</div>
+
+<script>
+// 黄道12宫（果老星宗顺序：戌酉申未午巳辰卯寅丑子亥）
+const palaces = ["戌","酉","申","未","午","巳","辰","卯","寅","丑","子","亥"];
+const branches = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+const branchNames = {"子":"深夜","丑":"凌晨","寅":"黎明","卯":"日出","辰":"早晨","巳":"上午","午":"正午","未":"午后","申":"下午","酉":"傍晚","戌":"入夜","亥":"深夜"};
+
+// 时辰表（精确到分钟）
+const hoursData = [
+  {name:"卯时",range:"05:00-07:00",idx:3},{name:"辰时",range:"07:00-09:00",idx:4},
+  {name:"巳时",range:"09:00-11:00",idx:5},{name:"午时",range:"11:00-13:00",idx:6},
+  {name:"未时",range:"13:00-15:00",idx:7},{name:"申时",range:"15:00-17:00",idx:8},
+  {name:"酉时",range:"17:00-19:00",idx:9},{name:"戌时",range:"19:00-21:00",idx:10},
+  {name:"亥时",range:"21:00-23:00",idx:11}
+];
+
+// 日间时辰索引
+const dayHours = [2,3,4,5,6]; // 巳午未申酉
+const eveHours = [4,5,6,7]; // 申酉戌亥
+
+// 事件类型 → 目标宫位 + 加分宫位 + 标签
+const eventMap = {
+  network:{main:"迁移",bonus:"福德",label:"社交人脉",tip:"太阳照迁移宫：社交磁场最强，适合结识新人、交换资源、拓展圈子"},
+  deal:{main:"财帛",bonus:"官禄",label:"签约合作",tip:"太阳照财帛宫：价值感最强，谈判有底气，对方容易认可你的出价"},
+  career:{main:"官禄",bonus:"迁移",label:"事业争取",tip:"太阳照官禄宫：权威感最强，面试述职气场在线，容易获得上级认可"},
+  launch:{main:"官禄",bonus:"财帛",label:"启动新事",tip:"太阳照官禄宫：开局气势最强，项目启动自带推动力"},
+  love:{main:"夫妻",bonus:"福德",label:"感情增进",tip:"太阳照夫妻宫：亲和力最强，约会中自然散发吸引力"},
+  travel:{main:"迁移",bonus:"官禄",label:"出行远行",tip:"太阳照迁移宫：出行顺畅，异地事务处理顺手"},
+  study:{main:"福德",bonus:"迁移",label:"学习创作",tip:"太阳照福德宫：灵感专注度最高，适合需要深度投入的脑力活动"}
+};
+
+// 太阳黄经计算
+function getSolarPosition(dateStr){
+  const d = new Date(dateStr + "T12:00:00+08:00");
+  const y = d.getFullYear();
+
+  // 春分近似（NASA简化公式）：3月20日或21日
+  // 用 Meeus 近似：春分 = 3月20.5 + (y-2000)*0.2422/365.25 偏差极小
+  const eqBase = new Date(y, 2, 20, 12, 0, 0);
+  // 精确春分日更接近3月20日中午
+  const vernal = new Date(y, 2, 20, 18, 0, 0);
+
+  const diffDays = (d - vernal) / 86400000;
+  // 处理春分前后
+  let daysFromVernal;
+  if(diffDays >= 0) daysFromVernal = diffDays;
+  else {
+    // 春分之前，用上一年的春分
+    const prevVernal = new Date(y-1, 2, 20, 18, 0, 0);
+    daysFromVernal = (d - prevVernal) / 86400000;
+  }
+
+  // 太阳黄经（从戌宫0°起，每宫30°）
+  const deg = (daysFromVernal * 0.9856) % 360;
+  const palaceIdx = Math.floor(deg / 30);
+  const palaceDeg = deg % 30;
+  return {palace: palaces[palaceIdx], deg: palaceDeg, totalDeg: deg, palaceIdx};
+}
+
+// 命宫计算：时加太阳宫，顺数至卯
+function calcMing(solarPalace, hourBranch){
+  const si = branches.indexOf(solarPalace);
+  const hi = branches.indexOf(hourBranch);
+  let cur = si, placed = hi, count = 0;
+  while(count < 12){
+    if(placed === branches.indexOf("卯")) return branches[cur];
+    placed = (placed + 1) % 12;
+    cur = (cur + 1) % 12;
+    count++;
+  }
+  return branches[si];
+}
+
+// 目标宫 = 从命宫逆时针数n位 = (命宫索引 - n + 12) % 12
+function targetPalace(ming, offset){
+  const mi = branches.indexOf(ming);
+  return branches[(mi + offset) % 12];
+}
+
+// 两宫距离（0~6）
+function distance(p1, p2){
+  const d = Math.abs(branches.indexOf(p1) - branches.indexOf(p2));
+  return Math.min(d, 12 - d);
+}
+
+function calc(){
+  const date = document.getElementById("date").value;
+  const eventKey = document.getElementById("event").value;
+  const range = document.getElementById("range").value;
+  if(!date) return;
+
+  const solar = getSolarPosition(date);
+  const evt = eventMap[eventKey];
+  const mainOffset = {迁移:7,财帛:5,官禄:4,夫妻:2,福德:3}[evt.main];
+  const bonusOffset = {迁移:7,财帛:5,官禄:4,夫妻:2,福德:3}[evt.bonus];
+
+  // 筛选时辰
+  let hours = hoursData;
+  if(range === "day") hours = hoursData.filter(h => dayHours.includes(h.idx));
+  if(range === "eve") hours = hoursData.filter(h => eveHours.includes(h.idx));
+
+  // 计算每个时辰
+  const results = hours.map(h => {
+    const ming = calcMing(solar.palace, branches[h.idx]);
+    const tp = targetPalace(ming, mainOffset);
+    const bp = targetPalace(ming, bonusOffset);
+    const dMain = distance(solar.palace, tp);
+    const dBonus = distance(solar.palace, bp);
+
+    let score = 0;
+    const descs = [];
+
+    if(dMain === 0){ score += 100; descs.push("太阳直落"+evt.main+"宫"); }
+    else if(dMain === 4){ score += 70; descs.push("太阳120°拱"+evt.main+"宫"); }
+    else if(dMain === 2){ score += 35; descs.push("太阳60°六合"+evt.main+"宫"); }
+
+    if(dBonus === 0){ score += 60; descs.push("太阳照"+evt.bonus+"宫(加分)"); }
+    else if(dBonus === 4){ score += 35; descs.push("太阳拱"+evt.bonus+"宫(加分)"); }
+    else if(dBonus === 2){ score += 15; descs.push("太阳六合"+evt.bonus+"宫"); }
+
+    // 如果太阳在迁移宫且主宫是财帛等，也算隐含好处
+    if(tp === solar.palace && dMain==0) score += 10;
+
+    return {hour:h, ming, targetPalace:tp, bonusPalace:bp, dMain, dBonus, score, descs};
+  });
+
+  results.sort((a,b) => b.score - a.score);
+  const best = results[0];
+
+  // 渲染最佳卡片
+  document.getElementById("best").innerHTML = `
+    <div class="rank">⭐ 最佳时辰</div>
+    <div class="time">${best.hour.name} ${best.hour.range}</div>
+    <div class="desc">${evt.tip}<br><span style="font-size:11px;color:#887">太阳${solar.palace}宫${solar.deg.toFixed(1)}° · 命宫${best.ming} · ${evt.main}宫${best.targetPalace}</span>
+    </div>
+    <div class="tag-row">
+      <span class="tag">${evt.label}</span>
+      ${best.descs.map(d=>'<span class="tag">'+d+'</span>').join('')}
+    </div>
+  `;
+
+  // 渲染对比表
+  let tbl = `<table><tr><th>时辰</th><th>时间</th><th>命宫</th><th>${evt.main}宫</th><th>${evt.bonus}宫</th><th>太阳距主宫</th></tr>`;
+  results.forEach((r,i) => {
+    const cls = i===0 ? ' class="best-row"' : '';
+    const distText = r.dMain===0 ? '同宫' : r.dMain===4 ? '120°拱' : r.dMain===2 ? '60°合' : r.dMain+'宫';
+    tbl += `<tr${cls}>
+      <td class="a">${r.hour.name}</td>
+      <td>${r.hour.range}</td>
+      <td>${r.ming}</td>
+      <td class="a">${r.targetPalace}</td>
+      <td>${r.bonusPalace}</td>
+      <td>${distText}</td>
+    </tr>`;
+  });
+  tbl += `</table>`;
+  document.getElementById("table").innerHTML = tbl;
+
+  document.getElementById("result").style.display = "block";
+  document.getElementById("result").scrollIntoView({behavior:"smooth"});
+}
+
+// 自动计算今天
+document.addEventListener("DOMContentLoaded",()=>{
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById("date").value = today;
+});
+</script>
+</body>
+</html>
