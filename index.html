@@ -2,280 +2,322 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
 <title>日星择时</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#080816;color:#c0b8a8;min-height:100vh;padding-bottom:40px}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#0a0a14;color:#d0c8b8;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at 30% 20%,rgba(100,80,40,.12) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(40,60,100,.10) 0%,transparent 60%);pointer-events:none;z-index:0}
+.main{position:relative;z-index:1;max-width:420px;margin:0 auto;padding:16px}
 
-.header{text-align:center;padding:24px 16px 6px}
-.header h1{font-size:22px;color:#d4c098;letter-spacing:3px}
-.header .sub{font-size:11px;color:#665;margin-top:4px;letter-spacing:1px}
+h1{text-align:center;font-size:22px;font-weight:300;letter-spacing:3px;color:#c8b878;margin:8px 0 6px}
+.sub{text-align:center;font-size:11px;color:#666;margin-bottom:20px}
 
-.form{max-width:420px;margin:0 auto;padding:16px}
-.frow{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-.frow>div{flex:1;min-width:100px}
-.frow label{display:block;font-size:12px;color:#887;margin-bottom:4px}
-.frow input,.frow select{width:100%;padding:10px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:#c0b8a8;font-size:14px;font-family:inherit}
-.frow input:focus,.frow select:focus{outline:none;border-color:rgba(212,192,152,0.3)}
-.frow select option{background:#1a1a28;color:#c0b8a8}
-.btn{width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(135deg,#b89848,#8a6828);color:#0a0a14;font-size:15px;font-weight:600;letter-spacing:2px;cursor:pointer;margin-top:4px}
-.btn:active{opacity:0.85}
+.date-bar{display:flex;gap:6px;align-items:center;justify-content:center;margin-bottom:14px}
+.date-bar input{background:#1a1a2e;border:1px solid #333;color:#c8b878;padding:10px 12px;border-radius:8px;font-size:15px;width:150px;text-align:center;font-family:inherit}
+.date-bar button{background:#2a2a3e;border:1px solid #444;color:#c8b878;padding:10px 14px;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit;transition:all .2s}
+.date-bar button:active,.date-bar button.on{background:#3a3020;border-color:#c8b878;color:#e8d898}
 
-.result{display:none;max-width:420px;margin:0 auto;padding:0 16px 24px}
+.evt-bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px}
+.evt-bar button{background:#1a1a2e;border:1px solid #333;color:#998;padding:8px 12px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .2s}
+.evt-bar button:active,.evt-bar button.on{background:#2a2a14;border-color:#c8b878;color:#c8b878}
 
-.status{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;margin-bottom:12px}
-.status .row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:12px}
-.status .row .l{color:#887}
-.status .row .r{color:#d4c098;font-weight:600}
+.avoid-bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:18px;align-items:center}
+.avoid-bar .label{font-size:10px;color:#555;letter-spacing:1px;margin-right:2px}
+.avoid-bar button{background:#1a1a2e;border:1px solid #333;color:#555;padding:5px 10px;border-radius:16px;font-size:11px;cursor:pointer;font-family:inherit;transition:all .2s}
+.avoid-bar button.off{background:#2a1a1a;border-color:#622;color:#a44;text-decoration:line-through}
 
-.best{background:linear-gradient(135deg,rgba(180,160,100,0.12),rgba(180,160,100,0.02));border:1px solid rgba(180,160,100,0.15);border-radius:10px;padding:16px;text-align:center;margin-bottom:12px}
-.best .rank{font-size:11px;color:#998;letter-spacing:2px;margin-bottom:4px}
-.best .time{font-size:28px;color:#d4c098;font-weight:700;letter-spacing:3px;margin:4px 0}
-.best .reason{font-size:13px;color:#bba870;line-height:1.8}
+.summary{background:#111122;border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:12px;text-align:center}
+.summary .big{font-size:28px;color:#e8d898;font-weight:300;letter-spacing:2px}
+.summary .detail{font-size:11px;color:#666;margin-top:4px;line-height:1.6}
+.summary .score{font-size:40px;color:#d8a848;font-weight:200;margin:6px 0}
 
-.hour-list{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;overflow:hidden}
-.hour-list .hrow{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:12px}
-.hour-list .hrow:last-child{border-bottom:none}
-.hour-list .hrow.top{background:rgba(180,160,100,0.04)}
-.hour-list .hname{width:48px;font-size:16px;font-weight:700;color:#d4c098}
-.hour-list .hrange{width:48px;color:#887;font-size:11px}
-.hour-list .hinfo{flex:1;padding-left:8px}
-.hour-list .hinfo .hdesc{color:#998;font-size:11px;line-height:1.5}
-.hour-list .hscore{width:40px;text-align:right;font-size:14px;font-weight:700}
-.hour-list .hscore.gold{color:#d4c098}
-.hour-list .hscore.silver{color:#887}
-.hour-list .hscore.bronze{color:#665}
+.time-list{display:flex;flex-direction:column;gap:8px}
+.time-card{background:#111122;border:1px solid #222;border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;transition:all .2s;cursor:default}
+.time-card.top{border-color:#c8b87840;background:#181820}
+.time-card .left{flex:1;min-width:0}
+.time-card .left .t{font-size:18px;color:#e8d898;font-weight:300;letter-spacing:1px}
+.time-card .left .d{font-size:10px;color:#555;margin-top:3px;line-height:1.6;word-break:break-all}
+.time-card .right{text-align:center;flex-shrink:0;margin-left:10px}
+.time-card .right .sc{font-size:28px;color:#d8a848;font-weight:200}
+.time-card .right .lb{font-size:10px;color:#666;margin-top:2px}
 
-.explain{background:rgba(255,255,255,0.015);border-radius:10px;padding:14px;margin-top:12px;font-size:11px;color:#665;line-height:1.8}
-.explain strong{color:#887;display:block;margin-bottom:4px}
+.time-card.avoided{opacity:.35;border-color:#331a1a}
+.time-card.avoided .right .sc{color:#664}
+.time-card.avoided .left .t{color:#665}
 
-.footer{text-align:center;font-size:10px;color:#333;padding:16px;letter-spacing:1px}
+.time-card.bad{border-color:#331a1a;background:#170f0f}
+.time-card.bad .right .sc{color:#a55}
+.time-card.bad .left .t{color:#a88}
+
+.avoid-split{text-align:center;font-size:10px;color:#442;padding:6px 0;letter-spacing:2px}
+
+.star-info{background:#111122;border:1px solid #222;border-radius:12px;padding:14px;margin-top:12px}
+.star-info h3{font-size:13px;color:#887;font-weight:400;margin-bottom:8px;letter-spacing:1px}
+.star-info .row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid #1a1a2e}
+.star-info .row:last-child{border:none}
+.star-info .row .k{color:#666}
+.star-info .row .v{color:#c8b878;text-align:right}
+
+.footer{text-align:center;font-size:10px;color:#333;margin:20px 0 10px;letter-spacing:1px}
+
+@media(max-width:360px){
+  .time-card .right .sc{font-size:24px}
+  .summary .score{font-size:32px}
+}
 </style>
 </head>
 <body>
+<div class="main">
 
-<div class="header">
-<h1>日星择时</h1>
-<p class="sub">日月拱照 · 杨公造命法</p>
+<h1>日 星 择 时</h1>
+<div class="sub">二十八宿 · 十二宫拱照</div>
+
+<div class="date-bar">
+  <button onclick="chgDay(-1)">◀</button>
+  <input type="date" id="dInput">
+  <button onclick="chgDay(1)">▶</button>
+  <button id="todayBtn" onclick="setToday()">今天</button>
 </div>
 
-<div class="form">
-<div class="frow">
-<div><label>日期</label><input type="date" id="dateInput"></div>
-<div><label>事项</label><select id="eventSelect">
-<option value="network">拓展人脉</option>
-<option value="deal">签约合作</option>
-<option value="career">面试述职</option>
-<option value="launch">项目启动</option>
-<option value="love">约会感情</option>
-<option value="travel">出行远行</option>
-<option value="study">学习创作</option>
-</select></div>
-</div>
-<button class="btn" id="calcBtn">择时</button>
-</div>
+<div class="evt-bar" id="evtBar"></div>
+<div class="avoid-bar" id="avoidBar"></div>
 
-<div class="result" id="result"></div>
+<div class="summary" id="summary"></div>
+<div class="time-list" id="timeList"></div>
+<div class="star-info" id="starInfo"></div>
 
-<div class="footer">日星择时 · 参考框架</div>
+<div class="footer">日星择时 · 择吉系统</div>
+
+</div>
 
 <script>
-var BRANCHES = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-var PALACES = ["戌","酉","申","未","午","巳","辰","卯","寅","丑","子","亥"];
-var PNAMES = {戌:"白羊",酉:"金牛",申:"双子",未:"巨蟹",午:"狮子",巳:"处女",辰:"天秤",卯:"天蝎",寅:"射手",丑:"摩羯",子:"水瓶",亥:"双鱼"};
-
-var HOURS = [
-  {name:"卯",range:"5-7",idx:3},{name:"辰",range:"7-9",idx:4},
-  {name:"巳",range:"9-11",idx:5},{name:"午",range:"11-13",idx:6},
-  {name:"未",range:"13-15",idx:7},{name:"申",range:"15-17",idx:8},
-  {name:"酉",range:"17-19",idx:9},{name:"戌",range:"19-21",idx:10},
-  {name:"亥",range:"21-23",idx:11}
-];
-
-var EVENT_MAP = {
-  network:{main:"迁移",bonus:"福德",label:"拓展人脉",tip:"太阳拱照迁移宫 · 社交磁场最强"},
-  deal:{main:"财帛",bonus:"官禄",label:"签约合作",tip:"日入财帛宫 · 价值感在线"},
-  career:{main:"官禄",bonus:"迁移",label:"面试述职",tip:"日入官禄宫 · 权威感最强"},
-  launch:{main:"官禄",bonus:"财帛",label:"项目启动",tip:"日入官禄宫 · 开局气势在线"},
-  love:{main:"夫妻",bonus:"福德",label:"约会感情",tip:"太阳拱照夫妻宫 · 亲和力拉满"},
-  travel:{main:"迁移",bonus:"官禄",label:"出行远行",tip:"日入迁移宫 · 一路顺畅"},
-  study:{main:"福德",bonus:"迁移",label:"学习创作",tip:"太阳拱照福德宫 · 灵感专注度最高"}
+// ---- CONSTANTS ----
+const B=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+const P=["戌","酉","申","未","午","巳","辰","卯","寅","丑","子","亥"];
+const PN={戌:"白羊",酉:"金牛",申:"双子",未:"巨蟹",午:"狮子",巳:"处女",辰:"天秤",卯:"天蝎",寅:"射手",丑:"摩羯",子:"水瓶",亥:"双鱼"};
+const XIU=["角","亢","氐","房","心","尾","箕","斗","牛","女","虚","危","室","壁","奎","娄","胃","昴","毕","觜","参","井","鬼","柳","星","张","翼","轸"];
+const XW={角:"木",亢:"金",氐:"土",房:"火",心:"火",尾:"火",箕:"水",斗:"水",牛:"金",女:"土",虚:"火",危:"水",室:"火",壁:"水",奎:"木",娄:"金",胃:"土",昴:"火",毕:"水",觜:"火",参:"水",井:"水",鬼:"金",柳:"土",星:"火",张:"火",翼:"火",轸:"水"};
+const XF={角:"开拓·领导",亢:"决断·裁决",氐:"奠基·稳固",房:"搬家·迁居",心:"沟通·情感",尾:"收尾·完结",箕:"口才·沟通",斗:"竞争·取胜",牛:"积蓄·积累",女:"精细·手工",虚:"虚无·落空",危:"凶险·不稳",室:"家宅·安顿",壁:"学业·文书",奎:"考试·文章",娄:"钱财·进出",胃:"汇聚·整合",昴:"蛰伏·休养",毕:"远行·出发",觜:"观察·判断",参:"探索·发现",井:"远行·交通",鬼:"阴私·隐秘",柳:"梳理·整顿",星:"新始·开张",张:"社交·聚会",翼:"展翅·推进",轸:"完成·闭环"};
+const XD=360/28;
+const HRS=[{n:"卯",r:"5-7"},{n:"辰",r:"7-9"},{n:"巳",r:"9-11"},{n:"午",r:"11-13"},{n:"未",r:"13-15"},{n:"申",r:"15-17"},{n:"酉",r:"17-19"},{n:"戌",r:"19-21"},{n:"亥",r:"21-23"}];
+const WS={"木生火":1,"火生土":1,"土生金":1,"金生水":1,"水生木":1,"木克土":1,"土克水":1,"水克火":1,"火克金":1,"金克木":1};
+const PG5={戌:"火",酉:"金",申:"水",未:"土",午:"火",巳:"火",辰:"土",卯:"木",寅:"木",丑:"土",子:"水",亥:"水"};
+const PO={迁移:7,财帛:5,官禄:4,夫妻:2,福德:3};
+const EV={
+  network:{m:"迁移",b:"福德",lb:"拓展人脉",gx:["张","心","翼","星"],bx:["虚","危","鬼"],gw:["火"]},
+  deal:{m:"财帛",b:"官禄",lb:"签约合作",gx:["壁","娄","房","氐"],bx:["虚","危","鬼"],gw:["金","土"]},
+  career:{m:"官禄",b:"迁移",lb:"面试述职",gx:["角","奎","斗","星"],bx:["虚","危","鬼"],gw:["木","火"]},
+  launch:{m:"官禄",b:"财帛",lb:"项目启动",gx:["角","星","翼","张"],bx:["虚","危","鬼","觜"],gw:["木","火"]},
+  love:{m:"夫妻",b:"福德",lb:"约会感情",gx:["心","张","翼","星"],bx:["虚","危","鬼"],gw:["火"]},
+  travel:{m:"迁移",b:"官禄",lb:"出行远行",gx:["井","毕","角","参"],bx:["虚","危"],gw:["水","木"]},
+  study:{m:"福德",b:"迁移",lb:"学习创作",gx:["壁","奎","角","井"],bx:["虚","危"],gw:["水","木"]}
 };
 
-var PALACE_OFFSET = {迁移:7,财帛:5,官禄:4,夫妻:2,福德:3};
+// ---- HELPERS ----
+function d2x(deg){let d=(deg%360+360)%360,i=Math.min(Math.floor(d/XD),27);return{n:XIU[i],w:XW[XIU[i]],f:XF[XIU[i]]};}
+function da(a,b){let d=Math.abs(P.indexOf(a)-P.indexOf(b));return Math.min(d,12-d);}
+function ming(sp,hb){let si=P.indexOf(sp),hi=B.indexOf(hb);for(let c=0;c<12;c++)if((hi+c)%12===B.indexOf("卯"))return P[(si+c)%12];return sp;}
+function tp(m,o){return P[(P.indexOf(m)+o)%12];}
+function xiugong(x,g){let pw=PG5[g]||"",xw=x.w;if(WS[pw+"生"+xw])return{type:"生",rel:pw+"生"+xw};if(WS[xw+"生"+pw])return{type:"泄",rel:xw+"生"+pw};if(WS[xw+"克"+pw])return{type:"克",rel:xw+"克"+pw};if(WS[pw+"克"+xw])return{type:"耗",rel:pw+"克"+xw};return{type:"比",rel:""};}
 
-// 太阳黄经 (春分点为0° 简化)
-function getSolar(dateStr){
-  var d = new Date(dateStr+"T12:00:00+08:00");
-  var y = d.getFullYear();
-  var vernal = new Date(y,2,20,18,0,0);
-  var diff = (d - vernal)/86400000;
-  if(diff<0){ vernal=new Date(y-1,2,20,18,0,0); diff=(d-vernal)/86400000; }
-  var deg = (diff*0.9856)%360;
-  return {palace: PALACES[Math.floor(deg/30)], deg:deg%30, total:deg};
-}
-
-// 木星黄经 (周期11.86年 简化)
-function getJupiter(dateStr){
-  var d = new Date(dateStr+"T12:00:00+08:00");
-  var y = d.getFullYear();
-  var doy = (d-new Date(y,0,1))/86400000;
-  var yrFrac = y + doy/365.25 - 2020;
-  var deg = ((270 + yrFrac*30.34)%360+360)%360;
-  return {palace: PALACES[Math.floor(deg/30)], deg:deg%30, total:deg};
-}
-
-// 月亮黄经 (近似：每日13.18°，基于2026.6.15月亮在申宫约120°)
-function getMoon(dateStr){
-  var d = new Date(dateStr+"T12:00:00+08:00");
-  var ref = new Date("2026-06-15T12:00:00+08:00");
-  var diff = (d - ref)/86400000;
-  var deg = ((140 + diff*13.176)%360+360)%360;
-  return {palace: PALACES[Math.floor(deg/30)], deg:deg%30, total:deg};
-}
-
-// 安命宫法则：太阳宫→十二宫起点，按时辰地支定命宫
-function calcMing(solarPalace, hourBranch){
-  var si = PALACES.indexOf(solarPalace);
-  var hi = BRANCHES.indexOf(hourBranch);
-  for(var c=0;c<12;c++){
-    var placed = (hi + c)%12;
-    if(placed === BRANCHES.indexOf("卯")){
-      return PALACES[(si + c)%12];
-    }
+// ---- CORE ALGO ----
+function calc(ds,ek){
+  let dt=new Date(ds+"T12:00:00+08:00");
+  let yr=dt.getFullYear();
+  
+  // Spring equinox approx
+  let veq=new Date(yr,2,20,18,0,0);
+  let df=(dt-veq)/864e5;
+  if(df<0){veq=new Date(yr-1,2,20,18,0,0);df=(dt-veq)/864e5;}
+  let s_deg=(df*0.9856)%360;if(s_deg<0)s_deg+=360;
+  let s_p=P[Math.floor(s_deg/30)],s_x=d2x(s_deg);
+  
+  // Jupiter ~12yr cycle
+  let jan1=new Date(yr,0,1,0,0,0);
+  let dy=(dt-jan1)/864e5;
+  let j_deg=(270+(yr+dy/365.25-2020)*30.34)%360;if(j_deg<0)j_deg+=360;
+  let j_p=P[Math.floor(j_deg/30)],j_x=d2x(j_deg);
+  
+  // Moon ~27.3d
+  let ref=new Date(2026,5,15,12,0,0);
+  let dfm=(dt-ref)/864e5;
+  let m_deg=(140+dfm*13.176)%360;if(m_deg<0)m_deg+=360;
+  let m_p=P[Math.floor(m_deg/30)],m_x=d2x(m_deg);
+  
+  // malefics
+  let mp=P[1],sp_=P[11];
+  
+  let evt=EV[ek],mo=PO[evt.m],bo=PO[evt.b];
+  let rs=[];
+  
+  for(let hr of HRS){
+    let mg=ming(s_p,hr.n);
+    let tpp=tp(mg,mo),bpp=tp(mg,bo);
+    
+    let dSM=da(s_p,tpp),dSB=da(s_p,bpp),dJM=da(j_p,tpp),dJB=da(j_p,bpp),dMM=da(m_p,tpp);
+    let sc=0,ds=[];
+    
+    // Sun arcs
+    if(dSM===0){sc+=100;ds.push("日入"+evt.m+"宫");}
+    else if(dSM===4){sc+=70;ds.push("日拱"+evt.m+"宫");}
+    else if(dSM===2){sc+=35;ds.push("日合"+evt.m+"宫");}
+    if(dSB===0){sc+=60;ds.push("日入"+evt.b+"宫");}
+    else if(dSB===4){sc+=35;ds.push("日拱"+evt.b+"宫");}
+    
+    // Jupiter
+    if(dJM===0){sc+=80;ds.push("木入"+evt.m+"宫");}
+    else if(dJM===4){sc+=50;ds.push("木拱"+evt.m+"宫");}
+    if(dJB===0){sc+=50;ds.push("木入"+evt.b+"宫");}
+    else if(dJB===4){sc+=30;ds.push("木拱"+evt.b+"宫");}
+    
+    // Moon
+    if(dMM===0){sc+=50;ds.push("月入"+evt.m+"宫");}
+    else if(dMM===4){sc+=30;ds.push("月拱"+evt.m+"宫");}
+    
+    // Xiu-gong wuxing
+    let sr=xiugong(s_x,tpp);
+    if(sr.type==="生"){sc+=30;ds.push(s_x.n+"宿"+s_x.w+"生"+sr.rel);}
+    else if(sr.type==="克"){sc+=15;ds.push(s_x.n+"宿"+s_x.w+"克"+sr.rel);}
+    
+    let jr=xiugong(j_x,tpp);
+    if(jr.type==="生"){sc+=20;ds.push("木"+j_x.n+"宿"+j_x.w+"生"+jr.rel);}
+    else if(jr.type==="克"){sc+=10;ds.push("木"+j_x.n+"宿"+j_x.w+"克"+jr.rel);}
+    
+    // Xiu auspicious
+    if(evt.gx.includes(s_x.n)){sc+=40;ds.push(s_x.n+"宿"+s_x.f+"→利"+evt.lb);}
+    else if(evt.gw.includes(s_x.w)){sc+=20;ds.push(s_x.n+"宿"+s_x.w+"性利"+evt.lb);}
+    if(evt.bx.includes(s_x.n)){sc-=35;ds.push(s_x.n+"宿值日不利");}
+    if(evt.gx.includes(j_x.n)){sc+=25;ds.push("木居"+j_x.n+"宿利"+evt.lb);}
+    
+    // malefic check
+    if(da(mp,tpp)<=1||da(mp,tpp)===6){sc-=30;ds.push("⚠火星犯"+(evt.m||"")+"宫");}
+    if(da(sp_,tpp)<=1||da(sp_,tpp)===6){sc-=20;ds.push("⚠土星犯"+(evt.m||"")+"宫");}
+    
+    rs.push({n:hr.n,r:hr.r,mg:mg,sc:sc,ds:ds});
   }
-  return solarPalace;
+  rs.sort((a,b)=>b.sc-a.sc);
+  
+  return{
+    s_p,s_x,s_dg:s_deg,j_p,j_x,j_dg:j_deg,m_p,m_x,m_dg:m_deg,
+    rs,evt_key:ek
+  };
 }
 
-// 从命宫找目标宫 (逆时针offset)
-function targetPalace(ming, offset){
-  return PALACES[(PALACES.indexOf(ming) + offset)%12];
-}
-
-// 十二支距离 (0=同宫,4=三合120°,2=六合60°,6=冲180°,3/1=刑90°/30°)
-function distArc(a,b){
-  var d = Math.abs(PALACES.indexOf(a) - PALACES.indexOf(b));
-  return Math.min(d, 12-d);
-}
-
-function calc(){
-  var dateStr = document.getElementById("dateInput").value;
-  var eventKey = document.getElementById("eventSelect").value;
-  if(!dateStr) return;
-
-  var solar = getSolar(dateStr);
-  var jupiter = getJupiter(dateStr);
-  var moon = getMoon(dateStr);
-  var evt = EVENT_MAP[eventKey];
-  var mainOff = PALACE_OFFSET[evt.main];
-  var bonusOff = PALACE_OFFSET[evt.bonus];
-
-  var results = [];
-  for(var h=0;h<HOURS.length;h++){
-    var hour = HOURS[h];
-    var ming = calcMing(solar.palace, hour.name);
-    var tp = targetPalace(ming, mainOff);
-    var bp = targetPalace(ming, bonusOff);
-
-    // 太阳对目标宫
-    var dSunMain = distArc(solar.palace, tp);
-    var dSunBonus = distArc(solar.palace, bp);
-    // 木星对目标宫
-    var dJupMain = distArc(jupiter.palace, tp);
-    var dJupBonus = distArc(jupiter.palace, bp);
-    // 月亮对目标宫
-    var dMoonMain = distArc(moon.palace, tp);
-    var dMoonBonus = distArc(moon.palace, bp);
-
-    var score = 0;
-    var descs = [];
-
-    // 太阳打分
-    if(dSunMain === 0){ score += 100; descs.push("太阳入"+evt.main+"宫"); }
-    else if(dSunMain === 4){ score += 70; descs.push("太阳拱"+evt.main+"宫"); }
-    else if(dSunMain === 2){ score += 35; descs.push("太阳合"+evt.main+"宫"); }
-    if(dSunBonus === 0){ score += 60; descs.push("太阳入"+evt.bonus+"宫"); }
-    else if(dSunBonus === 4){ score += 35; descs.push("太阳拱"+evt.bonus+"宫"); }
-
-    // 木星打分
-    if(dJupMain === 0){ score += 80; descs.push("木星入"+evt.main+"宫"); }
-    else if(dJupMain === 4){ score += 50; descs.push("木星拱"+evt.main+"宫"); }
-    if(dJupBonus === 0){ score += 50; descs.push("木星入"+evt.bonus+"宫"); }
-    else if(dJupBonus === 4){ score += 30; descs.push("木星拱"+evt.bonus+"宫"); }
-
-    // 月亮加分
-    if(dMoonMain === 0){ score += 50; descs.push("月亮入"+evt.main+"宫"); }
-    else if(dMoonMain === 4){ score += 30; descs.push("月亮拱"+evt.main+"宫"); }
-
-    // 凶星火星土星检查 (简化：火星约在申宫58°，土星约在子宫330°)
-    var marsPalace = PALACES[Math.floor(58/30)];
-    var saturnPalace = PALACES[Math.floor(330/30)];
-    var dMarsMain = distArc(marsPalace, tp);
-    var dSaturnMain = distArc(saturnPalace, tp);
-    if(dMarsMain <= 1 || dMarsMain === 6) score -= 30;
-    if(dSaturnMain <= 1 || dSaturnMain === 6) score -= 20;
-
-    results.push({
-      hour: hour,
-      ming: ming,
-      score: score,
-      descs: descs,
-      solar: solar, jupiter: jupiter, moon: moon
-    });
+// ---- RENDER ----
+function render(r){
+  let evt=EV[r.evt_key];
+  let avoided=new Set();
+  document.querySelectorAll("#avoidBar button.off").forEach(b=>avoided.add(b.dataset.k));
+  
+  let normal=r.rs.filter(x=>!avoided.has(x.n));
+  let avoid=r.rs.filter(x=>avoided.has(x.n));
+  let top=normal[0]||r.rs[0];
+  
+  // Summary
+  document.getElementById("summary").innerHTML=`
+    <div class="score">${top.sc}分</div>
+    <div class="big">${top.n}时·${evt.lb}</div>
+    <div class="detail">日${r.s_p}宫${r.s_x.n}宿 · 木${r.j_p}宫${r.j_x.n}宿 · 月${r.m_p}宫${r.m_x.n}宿</div>
+  `;
+  
+  // Time list
+  function card(x,i,isTop){
+    let cls="time-card";
+    if(isTop) cls+=" top";
+    if(avoided.has(x.n)) cls+=" avoided";
+    if(!avoided.has(x.n) && x.sc<50) cls+=" bad";
+    let tag="";
+    if(avoided.has(x.n)) tag=" <span style='font-size:10px;color:#a44'>已避开</span>";
+    else if(x.sc<50) tag=" <span style='font-size:10px;color:#c55'>不宜</span>";
+    else if(isTop) tag=" <span style='font-size:10px;color:#c8b878'>最佳</span>";
+    return `<div class="${cls}">
+      <div class="left">
+        <div class="t">${x.n}时 ${x.r}时${tag}</div>
+        <div class="d">命宫${x.mg} · ${x.ds.slice(0,4).join(" · ")}</div>
+      </div>
+      <div class="right">
+        <div class="sc">${x.sc}</div>
+        <div class="lb">分</div>
+      </div>
+    </div>`;
   }
-
-  results.sort(function(a,b){ return b.score - a.score; });
-  var best = results[0];
-  var evt = EVENT_MAP[eventKey];
-
-  // 渲染
-  var html = '';
-
-  // 星体位置
-  html += '<div class="status">';
-  html += '<div class="row"><span class="l">太阳</span><span class="r">'+solar.palace+'宫 '+PNAMES[solar.palace]+' '+solar.deg.toFixed(1)+'°</span></div>';
-  html += '<div class="row"><span class="l">木星</span><span class="r">'+jupiter.palace+'宫 '+PNAMES[jupiter.palace]+' '+jupiter.deg.toFixed(1)+'°</span></div>';
-  html += '<div class="row"><span class="l">月亮</span><span class="r">'+moon.palace+'宫 '+PNAMES[moon.palace]+' '+moon.deg.toFixed(1)+'°</span></div>';
-  html += '</div>';
-
-  // 最佳
-  var bestDescs = best.descs.length>0 ? best.descs.join(' · ') : '无特殊拱照';
-  html += '<div class="best">';
-  html += '<div class="rank">最佳时辰</div>';
-  html += '<div class="time">'+best.hour.name+'时 '+best.hour.range+'点</div>';
-  html += '<div class="reason">命宫'+best.ming+' · '+evt.main+'宫('+evt.main+')<br>'+bestDescs+'</div>';
-  html += '</div>';
-
-  // 时辰排行
-  html += '<div class="hour-list">';
-  for(var i=0;i<results.length;i++){
-    var r = results[i];
-    var cls = i===0?"top":"";
-    var scoreCls = i===0?"gold":(i===1?"silver":"bronze");
-    var descText = r.descs.length>0 ? r.descs.join(' · ') : '—';
-    if(r.descs.length === 0) descText = '无拱照 · 可照常';
-    html += '<div class="hrow '+cls+'">';
-    html += '<span class="hname">'+r.hour.name+'</span>';
-    html += '<span class="hrange">'+r.hour.range+'点</span>';
-    html += '<span class="hinfo"><span class="hdesc">命'+r.ming+' · '+descText+'</span></span>';
-    html += '<span class="hscore '+scoreCls+'">'+r.score+'</span>';
-    html += '</div>';
+  
+  let tl="";
+  normal.forEach((x,i)=>tl+=card(x,i,i===0));
+  if(avoid.length){
+    tl+=`<div class="avoid-split">—— 已避开 ${avoid.length} 个时辰 ——</div>`;
+    avoid.forEach(x=>tl+=card(x,-1,false));
   }
-  html += '</div>';
-
-  // 说明
-  html += '<div class="explain"><strong>算法说明</strong>太阳黄经≈春分起算逐日+0.9856° · 木星≈自2020.0丑宫起每年+30.34° · 月亮≈每日+13.18°。安命宫以太阳宫为起点、卯时起命宫逆排。评分：太阳入宫100分/拱70分/合35分，木星入宫80分/拱50分，月亮入宫50分。火星冲刑扣30分，土星冲刑扣20分。</div>';
-
-  document.getElementById("result").innerHTML = html;
-  document.getElementById("result").style.display = "block";
-  document.getElementById("result").scrollIntoView({behavior:"smooth"});
+  document.getElementById("timeList").innerHTML=tl;
+  
+  // Star info
+  document.getElementById("starInfo").innerHTML=`
+    <h3>星 曜 状 态</h3>
+    <div class="row"><span class="k">日 (太阳)</span><span class="v">${r.s_p}宫 · ${PN[r.s_p]} · ${r.s_x.n}宿/${r.s_x.w} · ${r.s_x.f}</span></div>
+    <div class="row"><span class="k">木 (岁星)</span><span class="v">${r.j_p}宫 · ${PN[r.j_p]} · ${r.j_x.n}宿/${r.j_x.w} · ${r.j_x.f}</span></div>
+    <div class="row"><span class="k">月 (太阴)</span><span class="v">${r.m_p}宫 · ${PN[r.m_p]} · ${r.m_x.n}宿/${r.m_x.w} · ${r.m_x.f}</span></div>
+  `;
 }
 
-document.getElementById("calcBtn").addEventListener("click", calc);
-document.addEventListener("DOMContentLoaded", function(){
-  document.getElementById("dateInput").value = new Date().toISOString().slice(0,10);
-});
+function update(){
+  let ds=document.getElementById("dInput").value||"2026-06-16";
+  let ek=document.querySelector("#evtBar button.on")?.dataset?.k||"network";
+  let r=calc(ds,ek);
+  render(r);
+}
+
+// ---- UI ----
+function init(){
+  let d=document.getElementById("dInput");
+  d.value="2026-06-16";
+  d.addEventListener("change",update);
+  
+  let eb=document.getElementById("evtBar");
+  let btns="";
+  for(let [k,v] of Object.entries(EV)){
+    let cls=k==="network"?" on":"";
+    btns+=`<button class="${cls}" data-k="${k}" onclick="selEvt(this,'${k}')">${v.lb}</button>`;
+  }
+  eb.innerHTML=btns;
+  
+  // Avoid bar
+  let ab=document.getElementById("avoidBar");
+  ab.innerHTML=`<span class="label">避开</span>`+
+    HRS.map(h=>`<button data-k="${h.n}" onclick="togAvoid(this)">${h.n}时</button>`).join("");
+  
+  document.getElementById("todayBtn").addEventListener("click",setToday);
+  
+  update();
+}
+
+function togAvoid(btn){
+  btn.classList.toggle("off");
+  update();
+}
+
+function selEvt(btn,k){
+  document.querySelectorAll("#evtBar button").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+  update();
+}
+
+function chgDay(d){
+  let inp=document.getElementById("dInput");
+  let dt=new Date(inp.value+"T12:00:00+08:00");
+  dt.setDate(dt.getDate()+d);
+  let s=dt.toISOString().slice(0,10);
+  inp.value=s;
+  update();
+}
+
+function setToday(){
+  let s=new Date().toISOString().slice(0,10);
+  document.getElementById("dInput").value=s;
+  update();
+}
+
+init();
 </script>
 </body>
 </html>
